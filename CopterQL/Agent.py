@@ -2,13 +2,11 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:17
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 07:15:44
+# @Last Modified time: 2019-04-28 14:40:07
 
 import numpy as np
-import pandas as pd
 import pygame
-
-GREEDY, USER_INPUT, RANDOM = 0, 1, 2
+from VARS import *
 
 
 class Agent(object):
@@ -20,11 +18,14 @@ class Agent(object):
         self.y_pos = y_pos
         self.score = score
         self.state = state
-        self.actions = [-7, 0]
+        self.actions = [0, -7]
         self.current_action = 1
         self.reward = 0
-        self.copter = pygame.image.load('helicopter.png')
-        self.copter = pygame.transform.scale(self.copter, (100, 50))
+        if DISPLAY:
+            self.copter = pygame.image.load('helicopter.png')
+            self.copter = pygame.transform.scale(self.copter, (100, 50))
+        else:
+            self.copter = None
 
     def update(self):
         # self.score += 1
@@ -58,4 +59,5 @@ class Agent(object):
 
     def start(self):
         self.score = 0
-        self.y_pos = 250
+        self.y_pos = 800 * 0.3
+        self.reward = 0

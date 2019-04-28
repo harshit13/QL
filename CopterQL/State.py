@@ -2,22 +2,14 @@
 # @Author: harshit
 # @Date:   2019-04-28 06:26:52
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 10:00:13
+# @Last Modified time: 2019-04-28 18:34:19
 
-from QLAgent import *
-from Agent import *
-from Game import *
+# from QLAgent import *
+# from Agent import *
+# from Game import *
 import copy
-
-# static limits for data
-AGENT_Y_POS_MIN, AGENT_Y_POS_RANGE = 5, 495 - 5
-WALL_HEIGHT_MIN, WALL_HEIGHT_RANGE = 50, 400 - 50
-WALL_X_POS_MIN, WALL_X_POS_RANGE = 0, 800 - 0
-
-# 1 Agent y position
-# 2-9 Walls x position and height
-# 10-11 one hot encoded action #2
-NUM_FEATURES = 11
+import numpy as np
+from VARS import *
 
 
 class State(object):
@@ -84,9 +76,9 @@ class State(object):
             next_S.W4_height = 0
             next_S.W4_x_pos = 800
         else:
-            next_state.W2_x_pos -= 5
-            next_state.W3_x_pos -= 5
-            next_state.W4_x_pos -= 5
+            next_S.W2_x_pos -= 5
+            next_S.W3_x_pos -= 5
+            next_S.W4_x_pos -= 5
         return next_S
 
     def print_state(self):
@@ -106,7 +98,6 @@ class State(object):
         inp[6] = (self.W3_x_pos - WALL_X_POS_MIN) / WALL_X_POS_RANGE
         inp[7] = (self.W4_height - WALL_HEIGHT_MIN) / WALL_HEIGHT_RANGE
         inp[8] = (self.W4_x_pos - WALL_X_POS_MIN) / WALL_X_POS_RANGE
-        inp[9] = 1 if action == -7 else 0
-        inp[10] = 1 if action == 0 else 0
+        (inp[9], inp[10]) = (1, 0) if action == 0 else (0, 1)
         # print(inp.shape)
         return inp.reshape((1, NUM_FEATURES))

@@ -2,17 +2,17 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:06
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 10:21:20
+# @Last Modified time: 2019-04-28 18:46:06
 
-from Agent import *
-from Wall import *
-from State import *
+from QLAgent import QLAgent, QAgent
+from Wall import Wall
+from State import State
 import pygame
+import numpy as np
+from VARS import *
 
-black = (0, 0, 0)
-white = (255, 255, 255)
+num_taken_actions = 0
 
-DISPLAY = False
 
 class Game(object):
     """docstring for Game"""
@@ -27,8 +27,12 @@ class Game(object):
         self.Y = 500
         self.top = 5
         self.bottom = 495
-        self.display = pygame.display.set_mode(shape)
-        self.clock = pygame.time.Clock()
+        if DISPLAY:
+            self.display = pygame.display.set_mode(shape)
+            self.clock = pygame.time.Clock()
+        else:
+            self.display = None
+            self.clock = None
         self.finished = False
         self.state = state
 
@@ -111,45 +115,59 @@ class Game(object):
             self.agent.copter, (self.agent.x_pos, self.agent.y_pos))
 
     def run(self):
+        global num_taken_actions
         # pygame.display.set_caption('Copter')
         while not self.finished:
             self.update()
-            self.display.fill(white)
 
             if DISPLAY:
+                self.display.fill(white)
+
                 # draw top and bottom
                 pygame.draw.rect(self.display, black, [0, 0, 800, 10])
                 pygame.draw.rect(self.display, black, [0, 490, 800, 10])
 
-            # display walls
-            for wall in self.walls:
-                self.display_wall(wall)
+                # display walls
+                for wall in self.walls:
+                    self.display_wall(wall)
 
-            # display copter
-            self.display_copter()
+                # display copter
+                self.display_copter()
 
-            if DISPLAY:
                 # update display
                 pygame.display.update()
-            self.clock.tick(60)
+                self.clock.tick(30)
+
             print(
+                "#Actions:", num_taken_actions,
                 "Reward:", self.agent.reward,
                 "Score:", self.agent.score,
                 "#Walls:", len(self.walls))
             self.state.print_state()
+            num_taken_actions += 1
 
         # pygame.quit()
 
 
 def main():
-    shape = (800, 500)
     state = State()
     agent = QLAgent(shape[1] * 0.3, 0, state, 0.1, 0.7)
     game = Game(agent, shape, state)
-    for s in range(100):
-        print('\n\n# Session:', s, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    for s in range(2000):
+        print(
+            '\n\n# Session:', s, 'Epsilon:', agent.epsilon,
+            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         game.start()
         game.run()
+    agent.model.save('model_2000_1.h5')
+
+
+def main_test():
+    state = State()
+    agent = QAgent(shape[1] * 0.3, 0, state, 'Model1\\model_1000_2.h5')
+    game = Game(agent, shape, state)
+    game.start()
+    game.run()
 
 
 if __name__ == '__main__':
