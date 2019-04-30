@@ -2,14 +2,34 @@
 # @Author: harshit
 # @Date:   2019-04-28 08:11:55
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 18:38:09
+# @Last Modified time: 2019-04-29 10:58:29
 
 from keras.layers import Dense, Input
 from keras.models import Model
+from keras.optimizers import Adam
 from VARS import *
 
 
-def NN():
+def NN1():
+    # Network with Input
+    #   - agent pos
+    #   - all walls heights and pos
+    #   - one hot encoded current action
+    inputs = Input((NUM_FEATURES,))
+    l0 = Dense(
+        512, activation='relu', kernel_initializer="random_uniform")(inputs)
+    l1 = Dense(
+        512, activation='relu', kernel_initializer="random_uniform")(l0)
+    output = Dense(1, activation='linear')(l1)
+
+    model = Model(inputs=[inputs], outputs=[output])
+    adm = Adam(lr=0.03)
+    model.compile(optimizer=adm, loss='mean_squared_error', metrics=['mse'])
+    model.summary()
+    return model
+
+
+def NN2():
     # Network with Input
     #   - agent pos
     #   - all walls heights and pos
@@ -25,9 +45,10 @@ def NN():
         2048, activation='relu', kernel_initializer="random_uniform")(l2)
     l4 = Dense(
         1024, activation='relu', kernel_initializer="random_uniform")(l3)
-    output = Dense(1, activation='relu')(l4)
+    output = Dense(1, activation='linear')(l4)
 
     model = Model(inputs=[inputs], outputs=[output])
-    model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mse'])
+    adm = Adam(lr=0.03)
+    model.compile(optimizer=adm, loss='mean_squared_error', metrics=['mse'])
     model.summary()
     return model

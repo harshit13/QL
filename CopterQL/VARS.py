@@ -2,13 +2,13 @@
 # @Author: harshit
 # @Date:   2019-04-28 14:37:23
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 18:36:08
+# @Last Modified time: 2019-04-29 16:47:06
 
 black = (0, 0, 0)
 white = (255, 255, 255)
 shape = (800, 500)
 
-DISPLAY = False
+DISPLAY = True
 
 GREEDY, USER_INPUT, RANDOM = 0, 1, 2
 

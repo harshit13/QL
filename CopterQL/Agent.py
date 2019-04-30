@@ -2,7 +2,7 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:17
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 14:40:07
+# @Last Modified time: 2019-04-29 12:47:44
 
 import numpy as np
 import pygame
@@ -18,7 +18,7 @@ class Agent(object):
         self.y_pos = y_pos
         self.score = score
         self.state = state
-        self.actions = [0, -7]
+        self.actions = [-7, 0]
         self.current_action = 1
         self.reward = 0
         if DISPLAY:

@@ -2,9 +2,9 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:06
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-28 18:46:06
+# @Last Modified time: 2019-04-29 16:48:41
 
-from QLAgent import QLAgent, QAgent
+from QLAgent import QAgent, QLAgentEReplay
 from Wall import Wall
 from State import State
 import pygame
@@ -49,14 +49,11 @@ class Game(object):
                 wall_removed = True
                 wall.isAlive = False
                 self.walls.remove(wall)
-        if wall_removed:
-            self.agent.new_reward(1)
-        else:
-            self.agent.new_reward(0)
+
         self.state.game_update(self.agent, self.walls)
         self.finished = self.collision()
         if self.finished:
-            self.agent.new_reward(-100)
+            self.agent.new_reward(-10)
         elif wall_removed:
             self.agent.new_reward(1)
         else:
@@ -144,6 +141,7 @@ class Game(object):
                 "Score:", self.agent.score,
                 "#Walls:", len(self.walls))
             self.state.print_state()
+            print()
             num_taken_actions += 1
 
         # pygame.quit()
@@ -151,24 +149,24 @@ class Game(object):
 
 def main():
     state = State()
-    agent = QLAgent(shape[1] * 0.3, 0, state, 0.1, 0.7)
+    agent = QLAgentEReplay(shape[1] * 0.3, 0, state, 0.7, 0.3, 10000)
     game = Game(agent, shape, state)
-    for s in range(2000):
+    for s in range(3000):
         print(
             '\n\n# Session:', s, 'Epsilon:', agent.epsilon,
             '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         game.start()
         game.run()
-    agent.model.save('model_2000_1.h5')
+        agent.model.save('model_3000_NN2_4.h5')
 
 
 def main_test():
     state = State()
-    agent = QAgent(shape[1] * 0.3, 0, state, 'Model1\\model_1000_2.h5')
+    agent = QAgent(shape[1] * 0.3, 0, state, 'model_3000_NN2_4.h5')
     game = Game(agent, shape, state)
     game.start()
     game.run()
 
 
 if __name__ == '__main__':
-    main()
+    main_test()
