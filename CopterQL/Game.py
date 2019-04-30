@@ -2,7 +2,7 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:06
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-29 16:48:41
+# @Last Modified time: 2019-05-01 02:30:38
 
 from QLAgent import QAgent, QLAgentEReplay
 from Wall import Wall
@@ -53,11 +53,11 @@ class Game(object):
         self.state.game_update(self.agent, self.walls)
         self.finished = self.collision()
         if self.finished:
-            self.agent.new_reward(-10)
+            self.agent.new_reward(-100)
         elif wall_removed:
-            self.agent.new_reward(1)
+            self.agent.new_reward(10)
         else:
-            self.agent.new_reward(0)
+            self.agent.new_reward(1)
 
         self.agent.update()
         # update the display
@@ -149,7 +149,9 @@ class Game(object):
 
 def main():
     state = State()
-    agent = QLAgentEReplay(shape[1] * 0.3, 0, state, 0.7, 0.3, 10000)
+    model_name = 'model_3000_NN3_1.h5'
+    agent = QLAgentEReplay(
+        shape[1] * 0.3, 0, state, 0.7, 0.3, model_name, 10000)
     game = Game(agent, shape, state)
     for s in range(3000):
         print(
@@ -157,12 +159,12 @@ def main():
             '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         game.start()
         game.run()
-        agent.model.save('model_3000_NN2_4.h5')
+        agent.model.save(model_name)
 
 
 def main_test():
     state = State()
-    agent = QAgent(shape[1] * 0.3, 0, state, 'model_3000_NN2_4.h5')
+    agent = QAgent(shape[1] * 0.3, 0, state, 'model_3000_NN3_1.h5')
     game = Game(agent, shape, state)
     game.start()
     game.run()

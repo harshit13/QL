@@ -2,16 +2,17 @@
 # @Author: harshit
 # @Date:   2019-04-27 19:21:07
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-29 15:10:14
+# @Last Modified time: 2019-05-01 02:02:29
 
 import numpy as np
 from Agent import Agent
 from DQN import *
 import os
 from keras.models import load_model
-# from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 # earlystopper = EarlyStopping(patience=5, verbose=1)
 # checkpointer = ModelCheckpoint(model_name, verbose=1, save_best_only=True)
+from sklearn.model_selection import KFold
 
 from Queue import ExperienceReplay
 import gc
@@ -31,7 +32,7 @@ class QLAgent(Agent):
         # the current reward
         self.reward = 0
         # epsilon for greedy action
-        self.epsilon = 0.9
+        self.epsilon = 0.87
         # the q approx model
         if os.path.isfile('model_300_NN2_3.h5'):
             self.model = load_model('model_300_NN2_3.h5')
@@ -74,8 +75,8 @@ class QLAgent(Agent):
             return self.actions[np.argmax([
                 self.getQ(state, action) for action in self.actions])], False
         else:
-            if self.epsilon > 0.3:
-                self.epsilon *= 0.99999
+            """if self.epsilon > 0.3:
+                self.epsilon *= 0.999999"""
             # print("Random Action")
             return self.actions[np.random.randint(0, 2)], True
 
@@ -132,15 +133,16 @@ class QAgent(Agent):
 class QLAgentEReplay(QLAgent):
     """docstring for QLAgentEReplay"""
 
-    def __init__(self, y_pos, score, state, alpha, gamma, size):
+    def __init__(self, y_pos, score, state, alpha, gamma, model_name, size):
         super(QLAgentEReplay, self).__init__(y_pos, score, state, alpha, gamma)
         self.buffer = ExperienceReplay(size)
-        if os.path.isfile('model_3000_NN2_4.h5'):
-            self.model = load_model('model_3000_NN2_4.h5')
+        self.model_name = model_name
+        if os.path.isfile(model_name):
+            self.model = load_model(model_name)
         else:
-            self.model = NN2()
+            self.model = NN3()
         self.reward = 0
-        self.epsilon = 0.9
+        self.epsilon = 0.87
 
     def update(self):
         next_action, isRandom = self.take_action(self.state)
@@ -160,10 +162,30 @@ class QLAgentEReplay(QLAgent):
         y = update.reshape(1, 1)
         self.buffer.add_new(x, y)
         if len(self.buffer.X) == self.buffer.size:
-            self.model.fit(
-                np.array(self.buffer.X).reshape(
-                    (self.buffer.size, NUM_FEATURES)),
-                np.array(self.buffer.Y).reshape((self.buffer.size, 1)),
-                verbose=2, epochs=10, batch_size=100)
+            # starting K-FOLD training
+            folds = KFold(n_splits=5, random_state=2319)
+
+            # processing the data into numpy arrays
+            X = np.array(self.buffer.X).reshape(
+                (self.buffer.size, NUM_FEATURES))
+            Y = np.array(self.buffer.Y).reshape((self.buffer.size, 1))
+
+            # setting model callbacks
+            earlystopper = EarlyStopping(patience=5, verbose=2)
+            checkpointer = ModelCheckpoint(
+                self.model_name, verbose=2, save_best_only=True)
+
+            # starting the iterations
+            for fold_, (trn_idx, val_idx) in enumerate(folds.split(X, Y)):
+                # Processing train and validation sets
+                X_tr, Y_tr = X[trn_idx], Y[trn_idx]
+                X_val, Y_val = X[val_idx], Y[val_idx]
+
+                print("Fold:", fold_ + 1, "Training")
+                self.model.fit(
+                    X_tr, Y_tr,
+                    validation_data=(X_val, Y_val),
+                    verbose=2, epochs=40, batch_size=400,
+                    callbacks=[earlystopper, checkpointer])
             self.buffer.clear()
             gc.collect()

@@ -2,7 +2,7 @@
 # @Author: harshit
 # @Date:   2019-04-28 08:11:55
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-04-29 10:58:29
+# @Last Modified time: 2019-04-30 19:40:12
 
 from keras.layers import Dense, Input
 from keras.models import Model
@@ -49,6 +49,23 @@ def NN2():
 
     model = Model(inputs=[inputs], outputs=[output])
     adm = Adam(lr=0.03)
+    model.compile(optimizer=adm, loss='mean_squared_error', metrics=['mse'])
+    model.summary()
+    return model
+
+
+def NN3():
+    # Network with Input
+    #   - agent pos
+    #   - all walls heights and pos
+    #   - one hot encoded current action
+    inputs = Input((NUM_FEATURES,))
+    l0 = Dense(
+        1024, activation='relu', kernel_initializer="random_uniform")(inputs)
+    output = Dense(1, activation='linear')(l0)
+
+    model = Model(inputs=[inputs], outputs=[output])
+    adm = Adam(lr=0.01)
     model.compile(optimizer=adm, loss='mean_squared_error', metrics=['mse'])
     model.summary()
     return model
