@@ -2,7 +2,7 @@
 # @Author: harshit
 # @Date:   2018-09-03 07:41:06
 # @Last Modified by:   harshit
-# @Last Modified time: 2019-05-01 02:30:38
+# @Last Modified time: 2019-05-01 06:45:05
 
 from QLAgent import QAgent, QLAgentEReplay
 from Wall import Wall
@@ -115,9 +115,17 @@ class Game(object):
         global num_taken_actions
         # pygame.display.set_caption('Copter')
         while not self.finished:
+
+            # updating self
             self.update()
 
             if DISPLAY:
+
+                # flushing event queues
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN and \
+                            event.key == K_ESCAPE:
+                        pygame.quit()
                 self.display.fill(white)
 
                 # draw top and bottom
@@ -133,7 +141,7 @@ class Game(object):
 
                 # update display
                 pygame.display.update()
-                self.clock.tick(30)
+                self.clock.tick(60)
 
             print(
                 "#Actions:", num_taken_actions,
